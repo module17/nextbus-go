@@ -10,6 +10,13 @@ import (
 
 const NEXTBUS_API_URL string = "http://webservices.nextbus.com/service/publicJSONFeed"
 
+type Agency struct {
+	Title string
+	Tag string
+	RegionTitle string
+	ShortTitle string
+}
+
 type Route struct {
 	Tag string
 	Title string
@@ -57,6 +64,11 @@ func (r Route) String() string {
 	return fmt.Sprintf("\t Title: %s - Tag: %s\n", r.Title, r.Tag)
 }
 
+func (a Agency) String() string {
+	return fmt.Sprintf("\n\t Agency: %s - Tag: %s\n\t Region: %s Short: %s",
+		a.Title, a.Tag, a.RegionTitle, a.ShortTitle)
+}
+
 func (r RouteDetails) String() string {
 	return fmt.Sprintf("\n\t Title: %s\n\t Tag: %s\n\t Stops:\n\t %s\n\t Directions:\n\t %s",
 		r.Title, r.Tag, r.Stop, r.Direction)
@@ -100,6 +112,12 @@ func fetchData(url string, d interface{}) error {
 	return nil
 }
 
+func getAgencyList() ([]Agency, error) {
+	var data struct{ Agency []Agency }
+	err := fetchData(args{}.makeUrl("agencyList"), &data)
+	return data.Agency, err
+}
+
 func getRouteList(agency string) ([]Route, error) {
 	args := args{{"a", agency}}
 	var data struct{ Route []Route }
@@ -115,18 +133,26 @@ func getRouteStops(agency, route string) (RouteDetails, error) {
 }
 
 func main() {
-	agency := "ttc"
 /*
+	agency := "ttc"
+
 	routes, err := getRouteList(agency)
 	if err != nil {
 		log.Fatalf("ERROR", err.Error())
 	}
 	fmt.Println("Routes: ", routes)
-*/
+
 	details, err := getRouteStops(agency, "510")
 	if err != nil {
 		log.Fatalf("ERROR", err.Error())
 	}
 	fmt.Println("Route Details: ", details)
+*/
+
+	agencies, err := getAgencyList()
+	if err != nil {
+		log.Fatalf("ERROR", err.Error())
+	}
+	fmt.Println("Agency Details: ", agencies)
 
 }
