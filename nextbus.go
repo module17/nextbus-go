@@ -42,6 +42,7 @@ type DirectionDetails struct {
 	}
 	
 }
+
 type StopDetails struct {
 	Title string
 	StopId string
@@ -53,11 +54,20 @@ type StopDetails struct {
 type args []struct{ key, value string }
 
 func (r Route) String() string {
-	return fmt.Sprintf("\t Tag: %s - Name: %s\n", r.Tag, r.Title)
+	return fmt.Sprintf("\t Title: %s - Tag: %s\n", r.Title, r.Tag)
+}
+
+func (r RouteDetails) String() string {
+	return fmt.Sprintf("\n\t Title: %s\n\t Tag: %s\n\t Stops:\n\t %s\n\t Directions:\n\t %s",
+		r.Title, r.Tag, r.Stop, r.Direction)
+}
+
+func (d DirectionDetails) String() string {
+	return fmt.Sprintf("\n\t Title: %s - Tag: %s", d.Title, d.Tag)
 }
 
 func (s StopDetails) String() string {
-	return fmt.Sprintf("Stop Tag: %s\n Stop Title: %s\n", s.Tag, s.Title)
+	return fmt.Sprintf("\n\t Title: %s - Tag: %s", s.Title, s.Tag)
 }
 
 func (a args) makeUrl(command string) string {
@@ -106,17 +116,17 @@ func getRouteStops(agency, route string) (RouteDetails, error) {
 
 func main() {
 	agency := "ttc"
-
+/*
 	routes, err := getRouteList(agency)
 	if err != nil {
 		log.Fatalf("ERROR", err.Error())
 	}
 	fmt.Println("Routes: ", routes)
-
-	stops, err := getRouteStops(agency, "510")
+*/
+	details, err := getRouteStops(agency, "510")
 	if err != nil {
 		log.Fatalf("ERROR", err.Error())
 	}
-	fmt.Println("Stops: ", stops)
+	fmt.Println("Route Details: ", details)
 
 }
