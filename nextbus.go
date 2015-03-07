@@ -58,6 +58,28 @@ type StopDetails struct {
 	Lon string
 }
 
+type Predictions  struct {
+	AgencyTitle string
+	RouteTag string
+	RouteTitle string
+	StopTitle string
+	StopTag string
+	Direction struct {
+		Title string
+		Prediction []struct {
+			IsDeparture string
+			Minutes string
+			Seconds string
+			TripTag string
+			Vehicle string
+			Block string
+			Branch string
+			DirTag string
+			EpochTime string
+		}
+	}
+}
+
 type args []struct{ key, value string }
 
 func (r Route) String() string {
@@ -132,6 +154,13 @@ func getRouteStops(agency, route string) (RouteDetails, error) {
 	return data.Route, err
 }
 
+func getPredictions(agency, route, stopTag string) (Predictions, error) {
+	args := args{{"a", agency}, {"r", route}, {"s", stopTag}}
+	var data struct{ Predictions Predictions }
+	err := fetchData(args.makeUrl("predictions"), &data)
+	return data.Predictions, err
+}
+
 func main() {
 /*
 	agency := "ttc"
@@ -147,12 +176,17 @@ func main() {
 		log.Fatalf("ERROR", err.Error())
 	}
 	fmt.Println("Route Details: ", details)
-*/
 
 	agencies, err := getAgencyList()
 	if err != nil {
 		log.Fatalf("ERROR", err.Error())
 	}
 	fmt.Println("Agency Details: ", agencies)
+*/
+	predictions, err := getPredictions("ttc", "510", "14339")
+	if err != nil {
+		log.Fatalf("ERROR", err.Error())
+	}
+	fmt.Println("Predictions: ", predictions)
 
 }
