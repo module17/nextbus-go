@@ -58,7 +58,7 @@ type StopDetails struct {
 	Lon string
 }
 
-type Predictions  struct {
+type Predictions struct {
 	AgencyTitle string
 	RouteTag string
 	RouteTitle string
@@ -66,24 +66,26 @@ type Predictions  struct {
 	StopTag string
 	Direction struct {
 		Title string
-		Prediction []struct {
-			IsDeparture string
-			Minutes string
-			Seconds string
-			TripTag string
-			Vehicle string
-			Block string
-			Branch string
-			DirTag string
-			EpochTime string
-		}
+		Prediction []PredictionDetails
 	}
+}
+
+type PredictionDetails struct {
+	IsDeparture string
+	Minutes string
+	Seconds string
+	TripTag string
+	Vehicle string
+	Block string
+	Branch string
+	DirTag string
+	EpochTime string
 }
 
 type args []struct{ key, value string }
 
 func (r Route) String() string {
-	return fmt.Sprintf("\t Title: %s - Tag: %s\n", r.Title, r.Tag)
+	return fmt.Sprintf("\n\t Title: %s - Tag: %s", r.Title, r.Tag)
 }
 
 func (a Agency) String() string {
@@ -102,6 +104,16 @@ func (d DirectionDetails) String() string {
 
 func (s StopDetails) String() string {
 	return fmt.Sprintf("\n\t Title: %s - Tag: %s", s.Title, s.Tag)
+}
+
+func (p Predictions) String() string {
+	return fmt.Sprintf("\n\t Route: %s - Tag: %s\n\t Stop: %s - Tag: %s\n\tDirections:\n\t %s",
+		p.RouteTitle, p.RouteTag, p.StopTitle, p.StopTag, p.Direction)
+}
+
+func (p PredictionDetails) String() string {
+	return fmt.Sprintf("\n\t Vehicle: %s - Block: %s - Branch: %s - Direction: %s\n\t Minutes: %s - Seconds: %s",
+		p.Vehicle, p.Block, p.Branch, p.DirTag, p.Minutes, p.Seconds)
 }
 
 func (a args) makeUrl(command string) string {
