@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"log"
 	"encoding/json"
+	"time"
 )
 
 const NEXTBUS_API_URL string = "http://webservices.nextbus.com/service/publicJSONFeed"
@@ -105,7 +106,28 @@ type Schedule struct {
 	}
 }
 
-type args []struct{ key, value string }
+type VehicleLocations struct {
+	LastTime struct {
+		Time string
+	}
+	Vehicle []VehicleLocation
+}
+
+type VehicleLocation struct {
+		Id string
+		RouteTag string
+		DirTag string
+		Predictable string
+		Lon string
+		Lat string
+		Heading string
+		SecsSinceReport string
+}
+
+type args []struct { 
+	key string
+	value string 
+}
 
 func (r Route) String() string {
 	return fmt.Sprintf("\n\t Title: %s - Tag: %s", r.Title, r.Tag)
@@ -137,6 +159,15 @@ func (p Predictions) String() string {
 func (p PredictionDetails) String() string {
 	return fmt.Sprintf("\n\t Vehicle: %s - Block: %s - Branch: %s - Direction: %s\n\t Minutes: %s - Seconds: %s",
 		p.Vehicle, p.Block, p.Branch, p.DirTag, p.Minutes, p.Seconds)
+}
+
+func (v VehicleLocations) String() string {
+	return fmt.Sprintf("\n\t Vehicles: %s\n\t Last Update: %s", v.Vehicle, v.LastTime)
+}
+
+func (v VehicleLocation) String() string {
+	return fmt.Sprintf("\n\t Vehicle ID: %s - Direction Tag: %s\n\t Route Tag: %s - Seconds Since: %s\n\t Lon: %s - Lat: %s - Heading: %s",
+		v.Id, v.DirTag, v.RouteTag, v.SecsSinceReport, v.Lon, v.Lat, v.Heading)
 }
 
 func (a args) makeUrl(command string) string {
@@ -203,6 +234,13 @@ func getSchedule(agency, route string) ([]Schedule, error) {
 	return data.Route, err
 }
 
+func getVehicleLocations(agency, route string) (VehicleLocations, error) {
+	args := args{{"a", agency}, {"r", route}, {"t", fmt.Sprint(time.Now().Unix())}}
+	var data VehicleLocations
+	err := fetchData(args.makeUrl("vehicleLocations"), &data)
+	return data, err
+}
+
 func main() {
 /*
 	agency := "ttc"
@@ -230,10 +268,16 @@ func main() {
 		log.Fatalf("ERROR", err.Error())
 	}
 	fmt.Println("Predictions: ", predictions)
-*/
+
 	schedule, err := getSchedule("ttc", "510")
 	if err != nil {
 		log.Fatalf("ERROR", err.Error())
 	}
 	fmt.Println("Schedule: ", schedule)
+*/
+	locations, err := getVehicleLocations("ttc", "510")
+	if err != nil {
+		log.Fatalf("ERROR", err.Error())
+	}
+	fmt.Println("Vehicle Locations: ", locations)
 }
