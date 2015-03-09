@@ -5,13 +5,13 @@ Nextbus API implementation in Go - A work in progress.
 
 - RouteList
 - RouteConfig
+- AgencyList
+- Predictions
+- VehicleLocations
+- Schedule
 
 ## TODO
 
-- AgencyList
-- Predictions
 - PredictionsMultiStops
-- VehicleLocations
-- Schedule
 - Messages
 
