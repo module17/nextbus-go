@@ -82,6 +82,29 @@ type PredictionDetails struct {
 	EpochTime string
 }
 
+type Schedule struct {
+	Title string
+	Tag string
+	Direction string
+	ServiceClass string
+	ScheduleClass string
+
+	Header struct {
+		Stop []struct {
+			Content string
+			Tag string
+		}
+	}
+	Tr []struct {
+		BlockId string
+		Stop []struct {
+			Content string
+			Tag string
+			EpochTime string
+		}
+	}
+}
+
 type args []struct{ key, value string }
 
 func (r Route) String() string {
@@ -173,6 +196,13 @@ func getPredictions(agency, route, stopTag string) (Predictions, error) {
 	return data.Predictions, err
 }
 
+func getSchedule(agency, route string) ([]Schedule, error) {
+	args := args{{"a", agency}, {"r", route}}
+	var data struct{ Route []Schedule }
+	err := fetchData(args.makeUrl("schedule"), &data)
+	return data.Route, err
+}
+
 func main() {
 /*
 	agency := "ttc"
@@ -194,11 +224,16 @@ func main() {
 		log.Fatalf("ERROR", err.Error())
 	}
 	fmt.Println("Agency Details: ", agencies)
-*/
+
 	predictions, err := getPredictions("ttc", "510", "14339")
 	if err != nil {
 		log.Fatalf("ERROR", err.Error())
 	}
 	fmt.Println("Predictions: ", predictions)
-
+*/
+	schedule, err := getSchedule("ttc", "510")
+	if err != nil {
+		log.Fatalf("ERROR", err.Error())
+	}
+	fmt.Println("Schedule: ", schedule)
 }
