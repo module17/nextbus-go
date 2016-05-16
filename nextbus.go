@@ -7,6 +7,7 @@ import (
 	"log"
 	"encoding/json"
 	"time"
+	"flag"
 )
 
 const NEXTBUS_API_URL string = "http://webservices.nextbus.com/service/publicJSONFeed"
@@ -48,7 +49,6 @@ type DirectionDetails struct {
 	Stop []struct {
 		Tag string
 	}
-	
 }
 
 type StopDetails struct {
@@ -124,9 +124,9 @@ type VehicleLocation struct {
 		SecsSinceReport string
 }
 
-type args []struct { 
+type args []struct {
 	key string
-	value string 
+	value string
 }
 
 func (r Route) String() string {
@@ -173,7 +173,7 @@ func (v VehicleLocation) String() string {
 func (a args) makeUrl(command string) string {
 	apiUrl, err := url.Parse(NEXTBUS_API_URL)
 	if err != nil {
-		log.Fatalf("API URL is not valid.", err.Error())	
+		log.Fatalf("API URL is not valid.", err.Error())
 	}
 	parameters := url.Values{}
 	parameters.Add("command", command)
@@ -242,42 +242,44 @@ func getVehicleLocations(agency, route string) (VehicleLocations, error) {
 }
 
 func main() {
-/*
-	agency := "ttc"
+	method := flag.String("method", "agencies", "Available methods: agencies, routes, stops, locations, predictions, schedule")
+	agencyCode := flag.String("agency", "ttc", "Toronto Transit Commission")
+	routeCode := flag.String("route", "510", "510 Default")
+	stopID := flag.String("stop", "14339", "Stop ID")
 
-	routes, err := getRouteList(agency)
-	if err != nil {
-		log.Fatalf("ERROR", err.Error())
-	}
-	fmt.Println("Routes: ", routes)
+	flag.Parse();
 
-	details, err := getRouteStops(agency, "510")
-	if err != nil {
-		log.Fatalf("ERROR", err.Error())
-	}
-	fmt.Println("Route Details: ", details)
+	var err error
+	var display string
+	var data interface{}
 
-	agencies, err := getAgencyList()
-	if err != nil {
-		log.Fatalf("ERROR", err.Error())
+	switch *method {
+	case "locations":
+		data, err = getVehicleLocations(*agencyCode, *routeCode)
+		display = "Vehicle Locations: "
+	case "routes":
+		data, err = getRouteList(*agencyCode)
+		display = "Route List: "
+	case "stops":
+		data, err = getRouteStops(*agencyCode, *routeCode)
+		display = "Route Stops: "
+	case "predictions":
+		data, err = getPredictions(*agencyCode, *routeCode, *stopID)
+		display = "Predictions: "
+	case "schedule":
+		data, err = getSchedule(*agencyCode, *routeCode)
+		display = "Schedule: "
+	case "agencies":
+		fallthrough
+	default:
+		data, err = getAgencyList()
+		display = "Agency List: "
 	}
-	fmt.Println("Agency Details: ", agencies)
 
-	predictions, err := getPredictions("ttc", "510", "14339")
+	// locations, err := getVehicleLocations(*agencyCode, *routeCode)
 	if err != nil {
 		log.Fatalf("ERROR", err.Error())
 	}
-	fmt.Println("Predictions: ", predictions)
 
-	schedule, err := getSchedule("ttc", "510")
-	if err != nil {
-		log.Fatalf("ERROR", err.Error())
-	}
-	fmt.Println("Schedule: ", schedule)
-*/
-	locations, err := getVehicleLocations("ttc", "510")
-	if err != nil {
-		log.Fatalf("ERROR", err.Error())
-	}
-	fmt.Println("Vehicle Locations: ", locations)
+	fmt.Println(display, data)
 }
